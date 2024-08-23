@@ -4,7 +4,6 @@ import serial
 import time
 import sys
 
-
 arduino = serial.Serial("COM3", 9600)
 time.sleep(2)
 
