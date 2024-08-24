@@ -1,6 +1,22 @@
+// pin connections for the 7-segment
+int a = 2;
+int b = 3;
+int c = 4;
+int d = 5;
+int e = 6;
+int f = 7;
+int g = 8;
+
 void setup()
 {
-  Serial.begin(9600)
+  pinMode(a, OUTPUT);
+  pinMode(b, OUTPUT);
+  pinMode(c, OUTPUT);
+  pinMode(d, OUTPUT);
+  pinMode(e, OUTPUT);
+  pinMode(f, OUTPUT);
+  pinMode(g, OUTPUT);
+  Serial.begin(9600);
 }
 void loop()
 {
@@ -11,6 +27,73 @@ void loop()
 
     Serial.print("Number of fingers: ");
     Serial.println(finger_count);
+    displayNumber(finger_count);
   }
 
+}
+
+// function for displaying seven segment 
+void displayNumber(int num)
+{
+
+  // initial states of segments
+  digitalWrite(a, LOW);
+  digitalWrite(b, LOW);
+  digitalWrite(c, LOW);
+  digitalWrite(d, LOW);
+  digitalWrite(e, LOW);
+  digitalWrite(f, LOW);
+  digitalWrite(g, LOW);
+
+  switch(num)
+  {
+    case 0: 
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(f, HIGH);
+      break;
+    case 1:
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      break;
+    case 2: 
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(g, HIGH);
+      digitalWrite(e, HIGH);
+      digitalWrite(d, HIGH);
+    case 3: 
+      digitalWrite(a, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(g, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      break;
+    case 4:
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      digitalWrite(b, HIGH);
+      digitalWrite(c, HIGH);
+      break;
+    case 5:
+      digitalWrite(a, HIGH);
+      digitalWrite(f, HIGH);
+      digitalWrite(g, HIGH);
+      digitalWrite(c, HIGH);
+      digitalWrite(d, HIGH);
+      break;
+    default:
+      digitalWrite(a, LOW);
+      digitalWrite(b, LOW);
+      digitalWrite(c, LOW);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
+      digitalWrite(f, LOW);
+      digitalWrite(g, LOW);
+    break;
+
+  }
 }
