@@ -4,7 +4,7 @@ import serial
 import time
 import sys
 
-arduino = serial.Serial("COM3", 9600)
+arduino = serial.Serial("COM3", 9600) # replace COM3 with the path to your arduino
 time.sleep(2)
 
 cap = cv.VideoCapture(0)
@@ -16,17 +16,19 @@ hand = mp_hands.Hands()
 
 mp_drawing  = mp.solutions.drawing_utils
 
-def finger_count(landmarks):
-    tips = [4, 8, 12, 16, 20]
+def count_fingers(landmarks):
     fingers = []
-
-  if landmarks.landmark[tips[0]].x < landmarks.landmark[tips[0] - 2].x:
+    
+    if landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x < landmarks.landmark[mp_hands.HandLandmark.THUMB_IP].x:
         fingers.append(1)
     else:
         fingers.append(0)
 
-    for tip in tips[1:]:
-        if landmarks.landmark[tip].y < landmarks.landmark[tip - 2].y:
+    for tip_id in [mp_hands.HandLandmark.INDEX_FINGER_TIP, 
+                   mp_hands.HandLandmark.MIDDLE_FINGER_TIP, 
+                   mp_hands.HandLandmark.RING_FINGER_TIP, 
+                   mp_hands.HandLandmark.PINKY_TIP]:
+        if landmarks.landmark[tip_id].y < landmarks.landmark[tip_id - 2].y:
             fingers.append(1)
         else:
             fingers.append(0)
@@ -40,8 +42,9 @@ while True:
         result = hand.process(frame)
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
-                print(hand_landmarks)
-                fingerCount = finger_count(hand_landmarks)
+                #print(hand_landmarks)
+                fingerCount = count_fingers(hand_landmarks)
+                print(f'Fingers detected: {fingerCount}')
                 arduino.write(f'{fingerCount}\n'.encode())
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
         cv.imshow("Image Capture", frame)
