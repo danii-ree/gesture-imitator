@@ -22,7 +22,7 @@ void loop()
 {
   if (Serial.available() > 0)
   {
-    String data = Serial.readString();
+    String data = Serial.readStringUntil('\n');
     int finger_count = data.toInt();
 
     Serial.print("Number of fingers: ");
@@ -54,10 +54,17 @@ void displayNumber(int num)
       digitalWrite(d, HIGH);
       digitalWrite(e, HIGH);
       digitalWrite(f, HIGH);
+      digitalWrite(g, LOW);
       break;
     case 1:
+      digitalWrite(a, LOW);
       digitalWrite(b, HIGH);
       digitalWrite(c, HIGH);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
+      digitalWrite(f, LOW);
+      digitalWrite(g, LOW);
+
       break;
     case 2: 
       digitalWrite(a, HIGH);
@@ -65,18 +72,26 @@ void displayNumber(int num)
       digitalWrite(g, HIGH);
       digitalWrite(e, HIGH);
       digitalWrite(d, HIGH);
+      digitalWrite(c, LOW);
+      digitalWrite(f, LOW);
+      break;
     case 3: 
       digitalWrite(a, HIGH);
       digitalWrite(b, HIGH);
       digitalWrite(g, HIGH);
       digitalWrite(c, HIGH);
       digitalWrite(d, HIGH);
+      digitalWrite(f, LOW);
+      digitalWrite(e, LOW);
       break;
     case 4:
       digitalWrite(f, HIGH);
       digitalWrite(g, HIGH);
       digitalWrite(b, HIGH);
       digitalWrite(c, HIGH);
+      digitalWrite(a, LOW);
+      digitalWrite(d, LOW);
+      digitalWrite(e, LOW);
       break;
     case 5:
       digitalWrite(a, HIGH);
@@ -84,6 +99,8 @@ void displayNumber(int num)
       digitalWrite(g, HIGH);
       digitalWrite(c, HIGH);
       digitalWrite(d, HIGH);
+      digitalWrite(b, LOW);
+      digitalWrite(e, LOW);
       break;
     default:
       digitalWrite(a, LOW);
