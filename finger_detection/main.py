@@ -3,7 +3,7 @@ import mediapipe as mp
 import serial
 import time
 
-arduino = serial.Serial("/dev/ttyACM0", 9600)  # Replace with your Arduino's port
+arduino = serial.Serial("COM3", 9600)  # Replace with your Arduino's port
 time.sleep(2)
 
 cap = cv.VideoCapture(0)
@@ -14,26 +14,41 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1)
 mp_drawing = mp.solutions.drawing_utils
 
-def count_fingers(landmarks):
+def findPosition(img, handNo = 0, draw = True) :
+    PosList = []
+    if result.multi_hand_landmarks :
+        myHand = result.multi_hand_landmarks[handNo]
+        for id, lm in enumerate(myHand.landmark):
+            h, w, c = img.shape
+            cx, cy = int(lm.x * w), int(lm.y * h)
+            PosList.append([id, cx, cy])
+                
+        if draw :
+            cv2.circle(img, (cx,cy), 10, (255,255,255), cv2.FILLED)
+            
+        return PosList
+
+def count_fingers(landmarkList):
     fingers = []
-    
-    # Thumb
-    if landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].x < landmarks.landmark[mp_hands.HandLandmark.THUMB_IP].x:
-        fingers.append(1)
-    else:
-        fingers.append(0)
+    tipIds = [4, 8, 12, 16, 20]
 
-    # Other fingers
-    for tip_id in [mp_hands.HandLandmark.INDEX_FINGER_TIP, 
-                   mp_hands.HandLandmark.MIDDLE_FINGER_TIP, 
-                   mp_hands.HandLandmark.RING_FINGER_TIP, 
-                   mp_hands.HandLandmark.PINKY_TIP]:
-        if landmarks.landmark[tip_id].y < landmarks.landmark[tip_id - 2].y:
-            fingers.append(1)
-        else:
-            fingers.append(0)
+    if len(landmarkList) != 0:
+       # Thumb detection
+       if landmarkList[tipIds[0]][1] > landmarkList[tipIds[0] - 1][1]:
+           fingers.append(1)
+       else:
+           fingers.append(0)
+      
+       # 4 Fingers
+       for id in range (1, 5):
+            if landmarkList[tipIds[id]][2] < landmarkList[tipIds[id] - 2][2]:
+                fingers.append(1)
+            else:
+                fingers.append(0)
 
-    return fingers.count(1)
+       total_fingers = fingers.count(1)
+       print(total_fingers)
+       # arduino.write(f'{total_fingers}\n'.encode())
 
 previous_finger_count = -1
 
@@ -44,17 +59,13 @@ while True:
         result = hands.process(RGB_frame)
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
-                finger_count = count_fingers(hand_landmarks)
-                if finger_count != previous_finger_count:
-                    print(f'Fingers detected: {finger_count}')
-                    arduino.write(f'{finger_count}\n'.encode())
-                    previous_finger_count = finger_count
-
+                lmList = findPosition(frame, draw=False)
+                count_fingers(lmList)
                 mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
         cv.imshow("Image Capture", frame)
         if cv.waitKey(1) == ord('q'):
             break
 
-arduino.close()
+#arduino.close()
 cv.destroyAllWindows()
